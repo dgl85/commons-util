@@ -15,7 +15,7 @@ public class ShiftlessArrayList<T> {
     }
 
     public ShiftlessArrayList() {
-        this(10000); //Default capacity
+        this(100); //Default capacity
     }
 
     public void addLast(T object) {
@@ -36,11 +36,11 @@ public class ShiftlessArrayList<T> {
     }
 
     public T get(int index) {
-        return data[getRealIndex(index)];
+        return data[getInternalArrayIndex(index)];
     }
 
-    public void put(T object, int index) {
-        data[getRealIndex(index)] = object;
+    public void set(T object, int index) {
+        data[getInternalArrayIndex(index)] = object;
     }
 
     public int size() {
@@ -65,15 +65,15 @@ public class ShiftlessArrayList<T> {
         baseIndex = 0;
     }
 
-    private int getRealIndex(int virtualIndex) {
-        if (virtualIndex < 0 || virtualIndex >= size) {
+    private int getInternalArrayIndex(int listIndex) {
+        if (listIndex < 0 || listIndex >= size) {
             throw new IndexOutOfBoundsException();
         }
-        int realIndex = baseIndex + virtualIndex;
-        if (realIndex >= capacity) {
-            realIndex -= capacity;
+        int arrayIndex = baseIndex + listIndex;
+        if (arrayIndex >= capacity) {
+            arrayIndex -= capacity;
         }
-        return realIndex;
+        return arrayIndex;
     }
 
     private void incrementBaseIndex() {
