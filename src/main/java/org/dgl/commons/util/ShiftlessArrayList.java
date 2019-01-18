@@ -4,6 +4,7 @@ package org.dgl.commons.util;
  * Optimized ArrayList at the expense of no remove(i) functionality; hence it's "shiftless"
  */
 public class ShiftlessArrayList<T> {
+
     private int capacity;
     private T[] data;
     private int size = 0;
@@ -93,11 +94,11 @@ public class ShiftlessArrayList<T> {
     }
 
     private void doubleCapacity() {
-        capacity *= 2;
-        T[] dataTemp = (T[]) new Object[capacity];
+        T[] dataTemp = (T[]) new Object[capacity*2];
         for (int i = 0; i < size; i++) {
             dataTemp[i] = get(i);
         }
+        capacity *= 2;
         baseIndex = 0;
         data = dataTemp;
     }
