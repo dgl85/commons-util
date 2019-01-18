@@ -40,7 +40,7 @@ public class ShiftlessArrayList<T> {
         return data[getInternalArrayIndex(index)];
     }
 
-    public void set(T object, int index) {
+    public void set(int index, T object) {
         data[getInternalArrayIndex(index)] = object;
     }
 
