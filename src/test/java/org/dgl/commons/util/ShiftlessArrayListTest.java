@@ -1,6 +1,7 @@
+package org.dgl.commons.util;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
-import org.dgl.commons.util.ShiftlessArrayList;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +23,6 @@ public class ShiftlessArrayListTest {
             assertEquals(shiftlessArrayList.get(i),invertedShiftlessArrayList.get(10000-1-i));
             assertEquals(arrayList.get(i), shiftlessArrayList.get(i));
         }
-
     }
 
     @Test
