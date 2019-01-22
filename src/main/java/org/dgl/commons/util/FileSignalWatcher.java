@@ -3,13 +3,14 @@ package org.dgl.commons.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.function.Consumer;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 public class FileSignalWatcher {
 
     private final File path;
-    private final String signalName;
+    private final String[] signalNames;
     private final Consumer<String> callback;
     private final Consumer<String> exceptionCallback;
     private WatchService watcher;
@@ -17,15 +18,20 @@ public class FileSignalWatcher {
     private boolean deleteSignalFileAfterRead = true; //Default
     private boolean watching = false;
 
-    public FileSignalWatcher(File path, String signalName, Consumer<String> callback,
+    public FileSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
                              Consumer<String> exceptionCallback) {
         if (!path.isDirectory()) {
             throw new IllegalArgumentException();
         }
         this.path = path;
-        this.signalName = signalName;
+        this.signalNames = signalNames;
         this.callback = callback;
         this.exceptionCallback = exceptionCallback;
+    }
+
+    public FileSignalWatcher(File path, String signalName, Consumer<String> callback,
+                             Consumer<String> exceptionCallback) {
+        this (path, new String[] {signalName}, callback, exceptionCallback);
     }
 
     public void startWatching() throws IOException {
@@ -58,7 +64,7 @@ public class FileSignalWatcher {
         this.deleteSignalFileAfterRead = deleteSignalFileAfterRead;
     }
 
-    private void deleteSignalFile() {
+    private void deleteSignalFile(String signalName) {
         int counter = 0;
         while (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
             counter++; //This block is hideous but sometimes necessary
@@ -75,27 +81,39 @@ public class FileSignalWatcher {
                 watcherKey = watcher.take();
             }
             catch (ClosedWatchServiceException | InterruptedException e) {
-                if (isWatching()) {
-                    stopWatching();
-                    exceptionCallback.accept(e.getMessage());
-                }
+                stopWithPossibleException(e.getMessage());
             }
             if (watcherKey != null && isWatching()) { //Watching may be false by now, since watcher.take is blocking
-                for (WatchEvent<?> event : watcherKey.pollEvents()) {
-                    if (event.context().toString().equals(signalName)) {
-                        if (deleteSignalFileAfterRead) {
-                            deleteSignalFile();
-                        }
-                        callback.accept(signalName);
-                    }
-                }
+                processPollEvents(watcherKey.pollEvents());
                 if (!watcherKey.reset()) { //Key no longer valid. Inaccessible path
-                    if (isWatching()) {
-                        stopWatching();
-                        exceptionCallback.accept("Watcher key no longer valid");
-                    }
+                    stopWithPossibleException("Watcher key no longer valid");
                 }
             }
+        }
+    }
+
+    private void processPollEvents(List<WatchEvent<?>> events) {
+        for (WatchEvent<?> event : events) {
+            String eventName = event.context().toString();
+            for (String signalName : signalNames) {
+                if (eventName.equals(signalName)) {
+                    processNewSignal(signalName);
+                }
+            }
+        }
+    }
+
+    private void processNewSignal(String signalName) {
+        if (deleteSignalFileAfterRead) {
+            deleteSignalFile(signalName);
+        }
+        callback.accept(signalName);
+    }
+
+    private void stopWithPossibleException(String possibleExceptionMessage) {
+        if (isWatching()) {
+            stopWatching();
+            exceptionCallback.accept(possibleExceptionMessage); //Exception is created only if we are currently watching
         }
     }
 }
