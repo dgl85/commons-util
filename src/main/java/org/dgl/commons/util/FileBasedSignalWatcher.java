@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
-public class FileSignalWatcher {
+public class FileBasedSignalWatcher {
 
     private final File path;
     private final String[] signalNames;
@@ -18,8 +18,8 @@ public class FileSignalWatcher {
     private boolean deleteSignalFileAfterRead = true; //Default
     private boolean watching = false;
 
-    public FileSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
-                             Consumer<String> exceptionCallback) {
+    public FileBasedSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
+                                  Consumer<String> exceptionCallback) {
         if (!path.isDirectory()) {
             throw new IllegalArgumentException();
         }
@@ -29,8 +29,8 @@ public class FileSignalWatcher {
         this.exceptionCallback = exceptionCallback;
     }
 
-    public FileSignalWatcher(File path, String signalName, Consumer<String> callback,
-                             Consumer<String> exceptionCallback) {
+    public FileBasedSignalWatcher(File path, String signalName, Consumer<String> callback,
+                                  Consumer<String> exceptionCallback) {
         this (path, new String[] {signalName}, callback, exceptionCallback);
     }
 

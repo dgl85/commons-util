@@ -7,12 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class FileSignalWatcherTest {
+public class FileBasedSignalWatcherTest {
     private boolean signalReceived = false;
     private boolean signalExceptionReceived = false;
     private static String signalName = "file_signal_test";
     private static String signalName2 = "file_signal_test2";
-    private final FileSignalWatcher signalWatcher = new FileSignalWatcher(path, new String[]{signalName, signalName2},
+    private final FileBasedSignalWatcher signalWatcher = new FileBasedSignalWatcher(path, new String[]{signalName, signalName2},
             this::fileSignalReceived, this::fileSignalExceptionReceived);
     private static final File path = new File(System.getProperty("java.io.tmpdir")
             + File.separator + "file_signal_watcher_test");
