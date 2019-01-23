@@ -116,7 +116,7 @@ public class FileBasedSignalWatcherTest {
             signalReceived = true;
         }
     }
-    public void fileSignalExceptionReceived(String exception) {
+    public void fileSignalExceptionReceived(Exception exception) {
         signalExceptionReceived = true;
     }
 

@@ -12,14 +12,14 @@ public class FileBasedSignalWatcher {
     private final File path;
     private final String[] signalNames;
     private final Consumer<String> callback;
-    private final Consumer<String> exceptionCallback;
+    private final Consumer<Exception> exceptionCallback;
     private WatchService watcher;
     private WatchKey watcherKey;
     private boolean deleteSignalFileAfterRead = true; //Default
     private boolean watching = false;
 
     public FileBasedSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
-                                  Consumer<String> exceptionCallback) {
+                                  Consumer<Exception> exceptionCallback) {
         if (!path.isDirectory()) {
             throw new IllegalArgumentException();
         }
@@ -30,7 +30,7 @@ public class FileBasedSignalWatcher {
     }
 
     public FileBasedSignalWatcher(File path, String signalName, Consumer<String> callback,
-                                  Consumer<String> exceptionCallback) {
+                                  Consumer<Exception> exceptionCallback) {
         this (path, new String[] {signalName}, callback, exceptionCallback);
     }
 
@@ -69,7 +69,7 @@ public class FileBasedSignalWatcher {
         while (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
             counter++; //This block is hideous but sometimes necessary
             if (counter > 100) { //Completely arbitrary
-                exceptionCallback.accept("Signal file could not be deleted");
+                exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
                 break;
             }
         }
@@ -81,12 +81,12 @@ public class FileBasedSignalWatcher {
                 watcherKey = watcher.take();
             }
             catch (ClosedWatchServiceException | InterruptedException e) {
-                stopWithPossibleException(e.getMessage());
+                stopWithPossibleException(e);
             }
             if (watcherKey != null && isWatching()) { //Watching may be false by now, since watcher.take is blocking
                 processPollEvents(watcherKey.pollEvents());
                 if (!watcherKey.reset()) { //Key no longer valid. Inaccessible path
-                    stopWithPossibleException("Watcher key no longer valid");
+                    stopWithPossibleException(new IllegalStateException("Watcher key no longer valid"));
                 }
             }
         }
@@ -110,10 +110,10 @@ public class FileBasedSignalWatcher {
         callback.accept(signalName);
     }
 
-    private void stopWithPossibleException(String possibleExceptionMessage) {
+    private void stopWithPossibleException(Exception possibleException) {
         if (isWatching()) {
             stopWatching();
-            exceptionCallback.accept(possibleExceptionMessage); //Exception is created only if we are currently watching
+            exceptionCallback.accept(possibleException); //Exception is created only if we are currently watching
         }
     }
 }
