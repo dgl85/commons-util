@@ -23,7 +23,7 @@ public class ShiftlessArrayList<T> {
         if (size >= capacity) {
             doubleCapacity();
         }
-        data[size] = object;
+        data[getTopIndex()] = object;
         size++;
     }
 
@@ -64,6 +64,14 @@ public class ShiftlessArrayList<T> {
     public void clear() {
         size = 0;
         baseIndex = 0;
+    }
+
+    private int getTopIndex() {
+        int topIndex = baseIndex+size;
+        if (topIndex >= capacity) {
+            topIndex -= capacity;
+        }
+        return topIndex;
     }
 
     private int getInternalArrayIndex(int listIndex) {

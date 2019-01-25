@@ -71,6 +71,48 @@ public class ShiftlessArrayListTest {
     }
 
     @Test
+    public void testRemoveFirst() {
+        ShiftlessArrayList<Integer> shiftlessArrayList = new ShiftlessArrayList<>();
+        shiftlessArrayList.addLast(0);
+        for (int i = 0; i < 100; i++) {
+            shiftlessArrayList.removeFirst();
+            shiftlessArrayList.addLast(i);
+            assertEquals(i, (int)shiftlessArrayList.get(0));
+        }
+    }
+
+    @Test
+    public void testEdge() {
+        ShiftlessArrayList<Integer> shiftlessArrayList = new ShiftlessArrayList<>(10);
+        shiftlessArrayList.addLast(0);
+        for (int i = 0; i < 10000; i++) {
+            shiftlessArrayList.removeFirst();
+            shiftlessArrayList.addLast(i);
+            assertEquals(i, (int)shiftlessArrayList.get(0));
+        }
+
+        shiftlessArrayList.clear();
+        shiftlessArrayList.addLast(0);
+        for (int i = 0; i < 10000; i++) {
+            shiftlessArrayList.removeLast();
+            shiftlessArrayList.addFirst(i);
+            assertEquals(i, (int)shiftlessArrayList.get(0));
+        }
+
+        shiftlessArrayList.clear();
+        shiftlessArrayList.addLast(0);
+        shiftlessArrayList.addLast(0);
+        for (int i = 0; i < 10000; i++) {
+            shiftlessArrayList.removeFirst();
+            for (int j = 0; j < 100; j++) {
+                shiftlessArrayList.addFirst(i);
+            }
+            assertEquals(i, (int)shiftlessArrayList.get(0));
+            assertEquals(0, (int)shiftlessArrayList.get(shiftlessArrayList.size()-1));
+        }
+    }
+
+    @Test
     public void testRestrictions() {
         ShiftlessArrayList<Integer> shiftlessArrayList = new ShiftlessArrayList<>();
         for (int i = 0; i < 100; i++) {
