@@ -9,13 +9,13 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 public class FileBasedSignalWatcher {
 
+    private boolean deleteSignalFileAfterRead = true; //Default
     private final File path;
     private final String[] signalNames;
     private final Consumer<String> callback;
     private final Consumer<Exception> exceptionCallback;
     private WatchService watcher;
     private WatchKey watcherKey;
-    private boolean deleteSignalFileAfterRead = true; //Default
     private boolean watching = false;
 
     public FileBasedSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
@@ -67,7 +67,7 @@ public class FileBasedSignalWatcher {
     private void deleteSignalFile(String signalName) {
         int counter = 0;
         while (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
-            counter++; //This block is hideous but sometimes necessary
+            counter++; //This block is hideous but necessary
             if (counter > 100) { //Completely arbitrary
                 exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
                 break;

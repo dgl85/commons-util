@@ -8,12 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class FileLogger {
 
-    private final File logFile;
     private BufferedWriter logWriter = null;
     private ReentrantLock writeLock = new ReentrantLock(true);
     private boolean addTimestamp = false;
     private DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().
             appendInstant(3).toFormatter(); //Default TS. Example: "2019-01-22T16:39:11.757Z"
+    private final File logFile;
 
     public FileLogger(File logFile) {
         this.logFile = logFile;
