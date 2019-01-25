@@ -9,19 +9,20 @@ import java.nio.channels.FileLock;
 /**
  * Works on Windows and POSIX systems, however on POSIX the lock file can still be deleted while opened/locked
  */
-public class FileBasedSystemWideLock {
+public class FileBasedLock {
 
     private final File lockFile;
     private FileLock fileLock;
+    private FileChannel channel;
 
-    public FileBasedSystemWideLock(File lockFile) {
+    public FileBasedLock(File lockFile) {
         this.lockFile = lockFile;
     }
 
     public boolean acquireLock() {
         boolean success = true;
         try {
-            FileChannel channel = new RandomAccessFile(lockFile, "rw").getChannel();
+            channel = new RandomAccessFile(lockFile, "rw").getChannel();
             fileLock = channel.tryLock();
             if (fileLock == null) {
                 success = false;
@@ -36,6 +37,7 @@ public class FileBasedSystemWideLock {
     public void releaseLock() {
         try {
             fileLock.release();
+            channel.close();
         } catch (IOException e) {}
     }
 }
