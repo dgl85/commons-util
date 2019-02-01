@@ -14,6 +14,9 @@ public class ShiftlessArrayListSubView<T> {
      * @param endIndex exclusive
      */
     public ShiftlessArrayListSubView(ShiftlessArrayList<T> parent, int startIndex, int endIndex) {
+        if (endIndex <= startIndex || startIndex < 0 || endIndex > parent.size()) {
+            throw new IllegalArgumentException();
+        }
         this.parent = parent;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
