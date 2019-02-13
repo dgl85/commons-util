@@ -5,33 +5,34 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.function.Consumer;
+
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 public class FileBasedSignalWatcher {
 
-    private boolean deleteSignalFileAfterRead = true; //Default
     private final File path;
-    private final String[] signalNames;
+    private final String[] signalRegexs;
     private final Consumer<String> callback;
     private final Consumer<Exception> exceptionCallback;
+    private boolean deleteSignalFileAfterRead = true; //Default
     private WatchService watcher;
     private WatchKey watcherKey;
     private boolean watching = false;
 
-    public FileBasedSignalWatcher(File path, String[] signalNames, Consumer<String> callback,
-                                  Consumer<Exception> exceptionCallback) {
+    public FileBasedSignalWatcher(File path, String[] signalRegexs, Consumer<String> callback,
+            Consumer<Exception> exceptionCallback) {
         if (!path.isDirectory()) {
             throw new IllegalArgumentException();
         }
         this.path = path;
-        this.signalNames = signalNames;
+        this.signalRegexs = signalRegexs;
         this.callback = callback;
         this.exceptionCallback = exceptionCallback;
     }
 
-    public FileBasedSignalWatcher(File path, String signalName, Consumer<String> callback,
-                                  Consumer<Exception> exceptionCallback) {
-        this (path, new String[] {signalName}, callback, exceptionCallback);
+    public FileBasedSignalWatcher(File path, String signalRegex, Consumer<String> callback,
+            Consumer<Exception> exceptionCallback) {
+        this(path, new String[]{signalRegex}, callback, exceptionCallback);
     }
 
     public void startWatching() throws IOException {
@@ -79,8 +80,7 @@ public class FileBasedSignalWatcher {
         while (watching) {
             try {
                 watcherKey = watcher.take();
-            }
-            catch (ClosedWatchServiceException | InterruptedException e) {
+            } catch (ClosedWatchServiceException | InterruptedException e) {
                 stopWithPossibleException(e);
             }
             if (watcherKey != null && isWatching()) { //Watching may be false by now, since watcher.take is blocking
@@ -95,9 +95,9 @@ public class FileBasedSignalWatcher {
     private void processPollEvents(List<WatchEvent<?>> events) {
         for (WatchEvent<?> event : events) {
             String eventName = event.context().toString();
-            for (String signalName : signalNames) {
-                if (eventName.equals(signalName)) {
-                    processNewSignal(signalName);
+            for (String signalRegex : signalRegexs) {
+                if (eventName.matches(signalRegex)) {
+                    processNewSignal(eventName);
                 }
             }
         }
