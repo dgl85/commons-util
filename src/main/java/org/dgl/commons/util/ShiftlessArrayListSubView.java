@@ -8,10 +8,9 @@ public class ShiftlessArrayListSubView<T> {
     private final int size;
 
     /**
-     *
      * @param parent
      * @param startIndex inclusive
-     * @param endIndex exclusive
+     * @param endIndex   exclusive
      */
     public ShiftlessArrayListSubView(ShiftlessArrayList<T> parent, int startIndex, int endIndex) {
         if (endIndex < startIndex || startIndex < 0 || endIndex > parent.size()) {
@@ -31,7 +30,7 @@ public class ShiftlessArrayListSubView<T> {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        return parent.get(startIndex+index);
+        return parent.get(startIndex + index);
     }
 
 }

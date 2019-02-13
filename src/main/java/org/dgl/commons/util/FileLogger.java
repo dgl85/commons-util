@@ -8,12 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class FileLogger {
 
+    private final File logFile;
     private BufferedWriter logWriter = null;
     private ReentrantLock writeLock = new ReentrantLock(true);
     private boolean addTimestamp = false;
     private DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().
             appendInstant(3).toFormatter(); //Default TS. Example: "2019-01-22T16:39:11.757Z"
-    private final File logFile;
 
     public FileLogger(File logFile) {
         this.logFile = logFile;
@@ -39,14 +39,13 @@ public class FileLogger {
         if (addTimestamp) {
             String TimestampS = dateFormatter.format(Instant.now());
             processLog(TimestampS + ": " + message);
-        }
-        else {
+        } else {
             processLog(message);
         }
     }
 
     public void logLine(String message) throws IOException {
-        log(message+"\n");
+        log(message + "\n");
     }
 
     public void logFile(String file) throws IOException {

@@ -67,7 +67,7 @@ public class ShiftlessArrayList<T> {
     }
 
     private int getTopIndex() {
-        int topIndex = baseIndex+size;
+        int topIndex = baseIndex + size;
         if (topIndex >= capacity) {
             topIndex -= capacity;
         }
@@ -86,7 +86,7 @@ public class ShiftlessArrayList<T> {
     }
 
     private void incrementBaseIndex() {
-        if (baseIndex < capacity-1) {
+        if (baseIndex < capacity - 1) {
             baseIndex++;
         } else {
             baseIndex = 0;
@@ -97,12 +97,12 @@ public class ShiftlessArrayList<T> {
         if (baseIndex > 0) {
             baseIndex--;
         } else {
-            baseIndex = capacity-1;
+            baseIndex = capacity - 1;
         }
     }
 
     private void doubleCapacity() {
-        T[] dataTemp = (T[]) new Object[capacity*2];
+        T[] dataTemp = (T[]) new Object[capacity * 2];
         for (int i = 0; i < size; i++) {
             dataTemp[i] = get(i);
         }

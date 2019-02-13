@@ -2,6 +2,7 @@ package org.dgl.commons.util;
 
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
+
 import java.io.*;
 
 public class YAMLBuilder {
@@ -57,7 +58,7 @@ public class YAMLBuilder {
         StringWriter writer = new StringWriter();
         String line;
         while ((line = reader.readLine()) != null) {
-            writer.write(line+"\n");
+            writer.write(line + "\n");
         }
         reader.close();
         return writer.toString();
