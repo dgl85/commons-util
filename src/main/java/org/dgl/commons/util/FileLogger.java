@@ -9,9 +9,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class FileLogger {
 
     private final File logFile;
+    private final ReentrantLock writeLock = new ReentrantLock(true);
     private BufferedWriter logWriter = null;
-    private ReentrantLock writeLock = new ReentrantLock(true);
     private boolean addTimestamp = false;
+    private long rotateWhenBiggerThanBytes = 0; //Disabled by default
     private DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().
             appendInstant(3).toFormatter(); //Default TS. Example: "2019-01-22T16:39:11.757Z"
 
@@ -22,7 +23,7 @@ public class FileLogger {
         }
     }
 
-    private void processLog(String message) throws IOException {
+    private void writeLog(String message) throws IOException {
         writeLock.lock();
         try {
             if (logWriter == null) {
@@ -30,17 +31,37 @@ public class FileLogger {
             }
             logWriter.write(message);
             logWriter.flush();
+            rotateIfNeeded();
         } finally {
             writeLock.unlock();
+        }
+    }
+
+    private void rotateIfNeeded() {
+        if (rotateWhenBiggerThanBytes > 0 && logFile.length() > rotateWhenBiggerThanBytes) {
+            try {
+                logWriter.close();
+            } catch (IOException e) {}
+            String originalName = logFile.getAbsolutePath();
+            int extensionIndex = originalName.lastIndexOf(".");
+            String extension = originalName.substring(extensionIndex);
+            String rotatedName = originalName.substring(0, extensionIndex + 1) + System.currentTimeMillis() + extension;
+            logFile.renameTo(new File(rotatedName));
+            try {
+                logWriter = new BufferedWriter(new FileWriter(logFile, true));
+            } catch (IOException e) {
+                e.printStackTrace();
+                logWriter = null;
+            }
         }
     }
 
     public void log(String message) throws IOException {
         if (addTimestamp) {
             String TimestampS = dateFormatter.format(Instant.now());
-            processLog(TimestampS + ": " + message);
+            writeLog(TimestampS + ": " + message);
         } else {
-            processLog(message);
+            writeLog(message);
         }
     }
 
@@ -78,6 +99,21 @@ public class FileLogger {
 
     public FileLogger setDateFormatter(DateTimeFormatter dateFormatter) {
         this.dateFormatter = dateFormatter;
+        return this;
+    }
+
+    public long getRotateWhenBiggerThanBytes() {
+        return rotateWhenBiggerThanBytes;
+    }
+
+    /**
+     * FileLogger will rotate log file when size is bigger than rotateWhenBiggerThanBytes
+     *
+     * @param rotateWhenBiggerThanBytes <=0 to ignore file rotations
+     * @return
+     */
+    public FileLogger setRotateWhenBiggerThanBytes(long rotateWhenBiggerThanBytes) {
+        this.rotateWhenBiggerThanBytes = rotateWhenBiggerThanBytes;
         return this;
     }
 }
