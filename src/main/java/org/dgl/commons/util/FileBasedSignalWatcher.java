@@ -2,6 +2,7 @@ package org.dgl.commons.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -66,7 +67,15 @@ public class FileBasedSignalWatcher {
     }
 
     private void deleteSignalFile(String signalName) {
-        if (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
+
+        File lockFile = new File(path.getAbsolutePath() + File.separator + signalName);
+        //We wait for file creation to be done before attempting to delete
+        try {
+            RandomAccessFile rFile = new RandomAccessFile(lockFile, "rw");
+            rFile.getChannel().tryLock();
+            rFile.close();
+        } catch (IOException e) {}
+        if (!lockFile.delete()) {
             exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
         }
     }
