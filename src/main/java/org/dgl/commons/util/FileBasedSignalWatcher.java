@@ -66,13 +66,8 @@ public class FileBasedSignalWatcher {
     }
 
     private void deleteSignalFile(String signalName) {
-        int counter = 0;
-        while (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
-            counter++; //This block is hideous but necessary
-            if (counter > 100) { //Completely arbitrary
-                exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
-                break;
-            }
+        if (!new File(path.getAbsolutePath() + File.separator + signalName).delete()) {
+            exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
         }
     }
 
