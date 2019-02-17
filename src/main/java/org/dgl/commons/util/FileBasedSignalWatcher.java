@@ -2,7 +2,6 @@ package org.dgl.commons.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.file.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -67,16 +66,19 @@ public class FileBasedSignalWatcher {
     }
 
     private void deleteSignalFile(String signalName) {
-
-        File lockFile = new File(path.getAbsolutePath() + File.separator + signalName);
-        //We wait for file creation to be done before attempting to delete
-        try {
-            RandomAccessFile rFile = new RandomAccessFile(lockFile, "rw");
-            rFile.getChannel().tryLock();
-            rFile.close();
-        } catch (IOException e) {}
-        if (!lockFile.delete()) {
-            exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
+        File signalFile = new File(path.getAbsolutePath() + File.separator + signalName);
+        int counter = 0;
+        /**
+         * We need this loop since ENTRY_CREATE event is triggered when a file is created and in many cases still
+         * locked, so we are just giving a fair amount of time (100 attempts to delete) for the file creation to be
+         * complete and the file to be released. We could have used a fixed ammount of time but this seems more
+         * appropriate
+         */
+        while (!signalFile.delete()) {
+            if (counter == 100) { //Arbitrary number big enough to allow file creation to be finished
+                exceptionCallback.accept(new IllegalStateException("Signal file could not be deleted"));
+                break;
+            }
         }
     }
 
