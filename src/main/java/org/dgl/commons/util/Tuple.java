@@ -1,20 +1,15 @@
 package org.dgl.commons.util;
 
-public class Tuple <T1,T2> {
+import java.io.Serializable;
 
+public class Tuple<T1, T2> implements Serializable {
+
+    private static final long serialVersionUID = 20180219002L;
     private T1 object1;
     private T2 object2;
 
     public Tuple(T1 object1, T2 object2) {
         this.object1 = object1;
-        this.object2 = object2;
-    }
-
-    public void setFirst(T1 object) {
-        this.object1 = object1;
-    }
-
-    public void setSecond(T2 object) {
         this.object2 = object2;
     }
 
@@ -27,7 +22,15 @@ public class Tuple <T1,T2> {
         return object1;
     }
 
+    public void setFirst(T1 object) {
+        this.object1 = object1;
+    }
+
     public T2 getSecond() {
         return object2;
+    }
+
+    public void setSecond(T2 object) {
+        this.object2 = object2;
     }
 }
