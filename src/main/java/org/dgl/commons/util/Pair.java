@@ -2,13 +2,13 @@ package org.dgl.commons.util;
 
 import java.io.Serializable;
 
-public class Tuple<T1, T2> implements Serializable {
+public class Pair<T1, T2> implements Serializable {
 
     private static final long serialVersionUID = 20180219002L;
     private T1 object1;
     private T2 object2;
 
-    public Tuple(T1 object1, T2 object2) {
+    public Pair(T1 object1, T2 object2) {
         this.object1 = object1;
         this.object2 = object2;
     }
