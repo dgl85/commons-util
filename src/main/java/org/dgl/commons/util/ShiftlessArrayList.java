@@ -50,6 +50,7 @@ public class ShiftlessArrayList<T> {
 
     public void removeFirst() {
         if (size > 0) {
+            set(baseIndex, null); // Clear for GC
             incrementBaseIndex();
             size--;
         }
@@ -57,6 +58,7 @@ public class ShiftlessArrayList<T> {
 
     public void removeLast() {
         if (size > 0) {
+            set(getTopIndex(), null); // Clear for GC
             size--;
         }
     }
@@ -64,6 +66,10 @@ public class ShiftlessArrayList<T> {
     public void clear() {
         size = 0;
         baseIndex = 0;
+        // Clear for GC
+        for (int i = 0; i < data.length; i++) {
+            data[i] = null;
+        }
     }
 
     private int getTopIndex() {
