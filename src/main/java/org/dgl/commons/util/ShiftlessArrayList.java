@@ -58,7 +58,7 @@ public class ShiftlessArrayList<T> {
 
     public void removeLast() {
         if (size > 0) {
-            set(size() - 1, null); // Clear for GC
+            set(size - 1, null); // Clear for GC
             size--;
         }
     }
